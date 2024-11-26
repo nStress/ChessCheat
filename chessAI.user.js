@@ -4,7 +4,7 @@
 // @grant       none
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/engine/betafish.js
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/vasara.js
-// @version     3.0
+// @version     3.1
 // @author      0mlml
 // @description Chess.com Cheat Userscript
 // @updateURL   https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
@@ -14,7 +14,7 @@
 
 (() => {
   const vs = vasara();
-
+  const cacheCustomDepth = 10
   const createExploitWindow = () => {
     const exploitWindow = vs.generateModalWindow({
       title: 'Exploits',
@@ -289,14 +289,20 @@
       }
     }
 
-    const updateEngineTextarea = (infoLine) => {
+    const updateEngineTextarea = (infoLine, customDepth) => {
       if (engineOutputTextArea) {
         const lines = engineOutputTextArea.value.split('\n');
         const infoParts = infoLine.split(' ');
-        const depth = infoParts[infoParts.indexOf('depth') + 1];
+        
+        // Setezi adâncimea personalizată
+        const depth = customDepth || infoParts[infoParts.indexOf('depth') + 1];
+        
+        // Extragi și restul datelor așa cum era înainte
         const score = infoParts[infoParts.indexOf('score') + 1] + ' ' + infoParts[infoParts.indexOf('score') + 2];
         const time = infoParts[infoParts.indexOf('time') + 1];
         const bestLine = infoParts.slice(infoParts.indexOf('pv') + 1).join(' ');
+    
+        // Actualizezi liniile în textarea
         if (depth !== 'info') {
           lines[0] = 'depth ' + depth;
         }
@@ -309,7 +315,7 @@
         if (!bestLine.startsWith('info')) {
           lines[3] = 'best line ' + bestLine;
         }
-
+    
         engineOutputTextArea.value = lines.join('\n');
       }
     }
@@ -324,7 +330,7 @@
       addToConsole(e.data.payload);
       addToWebSocketOutput(e.data.payload);
     } else if (e.data.type === 'UCI') {
-      updateEngineTextarea(e.data.payload);
+      updateEngineTextarea(e.data.payload, cacheCustomDepth);
     } else if (e.data.type === 'ENGINE') {
       externalEngineName = e.data.payload;
       addToWebSocketOutput('Connected to ' + externalEngineName);
