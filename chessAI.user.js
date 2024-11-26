@@ -2,12 +2,12 @@
 // @name        ChessAI
 // @include     https://www.chess.com/*
 // @grant       none
-// @require     https://raw.githubusercontent.com/nStress/chessAI/main/engine/betafish.js
-// @require     https://raw.githubusercontent.com/nStress/chessAI/main/vasara.js
+// @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/engine/betafish.js
+// @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/vasara.js
 // @version     0.0
 // @description Chess AI project
-// @updateURL   https://raw.githubusercontent.com/nStress/chessAI/main/chessAI.user.js
-// @downloadURL https://raw.githubusercontent.com/nStress/chessAI/main/chessAI.user.js
+// @updateURL   https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
+// @downloadURL https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
 // @run-at      document-start
 // ==/User Script==
 
