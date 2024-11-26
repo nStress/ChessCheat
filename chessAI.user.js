@@ -4,7 +4,7 @@
 // @grant       none
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/engine/betafish.js
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/vasara.js
-// @version     3.1
+// @version     3.4
 // @author      0mlml
 // @description Chess.com Cheat Userscript
 // @updateURL   https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
@@ -14,7 +14,6 @@
 
 (() => {
   const vs = vasara();
-  const cacheCustomDepth = 10
   const createExploitWindow = () => {
     const exploitWindow = vs.generateModalWindow({
       title: 'Exploits',
@@ -295,7 +294,7 @@
         const infoParts = infoLine.split(' ');
         
         // Setezi adâncimea personalizată
-        const depth = customDepth || infoParts[infoParts.indexOf('depth') + 1];
+        const depth = 10 || infoParts[infoParts.indexOf('depth') + 1];
         
         // Extragi și restul datelor așa cum era înainte
         const score = infoParts[infoParts.indexOf('score') + 1] + ' ' + infoParts[infoParts.indexOf('score') + 2];
@@ -978,8 +977,7 @@
               blackTime += increment;
             }
           }
-          goCommand += ' depth 10';
-          goCommand += ` wtime ${whiteTime} btime ${blackTime} winc ${increment} binc ${increment}`;
+          goCommand += ` wtime ${whiteTime} btime ${blackTime} winc ${increment} binc ${increment} depth 10`;
         } else {
           goCommand += ' depth 10';
         }
