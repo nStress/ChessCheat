@@ -1,16 +1,16 @@
-// ==User Script==
+// ==UserScript==
 // @name        ChessAI
-// @include     https://www.chess.com/*
+// @include    	https://www.chess.com/*
 // @grant       none
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/engine/betafish.js
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/vasara.js
-// @version     3.0
-// @author      nStress
-// @description Chess AI project
+// @version     2.0
+// @author      0mlml
+// @description Chess.com Cheat Userscript
 // @updateURL   https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
 // @downloadURL https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
 // @run-at      document-start
-// ==/User Script==
+// ==/UserScript==
 
 (() => {
   const vs = vasara();
