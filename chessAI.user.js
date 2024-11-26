@@ -4,7 +4,7 @@
 // @grant       none
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/engine/betafish.js
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/vasara.js
-// @version     3.1
+// @version     3.2
 // @author      0mlml
 // @description Chess.com Cheat Userscript
 // @updateURL   https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
@@ -14,7 +14,7 @@
 
 (() => {
   const vs = vasara();
-  const cacheCustomDepth = 10
+  const settingsDepth = 10;
   const createExploitWindow = () => {
     const exploitWindow = vs.generateModalWindow({
       title: 'Exploits',
@@ -937,18 +937,18 @@
   let engineLastKnownFEN = null;
   const getEngineMove = () => {
     const board = document.querySelector('wc-chess-board');
-
+  
     const fen = board.game.getFEN();
     if (!fen || engineLastKnownFEN === fen) return;
     engineLastKnownFEN = board.game.getFEN();
-
+  
     if (!isMyTurn()) return;
-
+  
     addToConsole(`Calculating move based on engine: ${vs.queryConfigKey(namespace + '_whichengine')}...`);
-
+  
     if (vs.queryConfigKey(namespace + '_automoveinstamovestart') && parseInt(fen.split(' ')[5]) < 6) lastEngineMoveCalcStartTime = 0;
     else lastEngineMoveCalcStartTime = performance.now();
-
+  
     if (vs.queryConfigKey(namespace + '_whichengine') === 'betafish') {
       betafishWorker.postMessage({ type: 'FEN', payload: fen });
       betafishWorker.postMessage({ type: 'GETMOVE' });
@@ -957,16 +957,19 @@
         addToConsole('External engine appears to be disconnected. Please check the config.');
         return;
       }
+  
+      // Verifică dacă există o comandă go, altfel o setează implicit
       let goCommand = vs.queryConfigKey(namespace + '_externalengineautogocommand');
-      if (!vs.queryConfigKey(namespace + '_externalengineautogocommand') && (!goCommand || !goCommand.includes('go'))) {
+      if (!goCommand || !goCommand.includes('go')) {
         addToConsole('External engine go command is invalid. Please check the config.');
         return;
-      } else if (vs.queryConfigKey(namespace + '_externalengineautogocommand')) {
+      } else {
+        // Setează 'go' și adaugă parametrii de timp dacă este necesar
         goCommand = 'go';
         if (board?.game?.timeControl && board.game.timeControl.get() && board.game.timestamps.get) {
           const increment = board.game.timeControl.get().increment;
           const baseTime = board.game.timeControl.get().baseTime;
-          let whiteTime = baseTime
+          let whiteTime = baseTime;
           let blackTime = baseTime;
           const timestamps = board.game.timestamps.get();
           for (let i in timestamps) {
@@ -979,26 +982,29 @@
             }
           }
           goCommand += ` wtime ${whiteTime} btime ${blackTime} winc ${increment} binc ${increment}`;
-        } else {
-          goCommand += ' depth 10';
         }
+        
+        // Asigură-te că 'depth 10' este întotdeauna adăugat
+        goCommand += ` depth ${settingsDepth}`;
       }
+      
       addToConsole('External engine is: ' + externalEngineName);
       externalEngineWorker.postMessage({ type: 'GETMOVE', payload: { fen: fen, go: goCommand } });
     } else if (vs.queryConfigKey(namespace + '_whichengine') === 'random') {
-      const legalMoves = document.querySelector('wc-chess-board').game.getLegalMoves()
+      const legalMoves = document.querySelector('wc-chess-board').game.getLegalMoves();
       const randomMove = legalMoves[Math.floor(Math.random() * legalMoves.length)];
-
+  
       addToConsole(`Random computed move: ${randomMove.san}`);
       handleEngineMove(randomMove.from + randomMove.to + (randomMove.promotion ? randomMove.promotion : ''));
     } else if (vs.queryConfigKey(namespace + '_whichengine') === 'cccp') {
       const move = cccpEngine();
       if (!move) return;
-
+  
       addToConsole(`CCCP computed move: ${move}`);
       handleEngineMove(move);
     }
   }
+  
 
   const calculateDOMSquarePosition = (square, fromDoc = true) => {
     const board = document.getElementsByTagName('wc-chess-board')[0];
