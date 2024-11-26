@@ -13,7 +13,7 @@
 // ==/UserScript==
 
 (() => {
-  const depthSET = 5;
+  var depthSET = 5;
   const vs = vasara();
   const createExploitWindow = () => {
     const exploitWindow = vs.generateModalWindow({
@@ -650,6 +650,40 @@
       showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && vs.queryConfigKey(namespace + '_whichengine') === 'external'
     });
 
+    vs.registerConfigValue({
+      key: namespace + '_depth',
+      type: 'number',
+      display: 'Depth: ',
+      description: 'Set the depth for the engine',
+      value: 5,  // Valoarea implicită
+      showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && vs.queryConfigKey(namespace + '_whichengine') === 'external',
+      callback: v => {
+        // Actualizează valoarea depthSET
+        depthSET = v;
+        console.log('Depth set to:', depthSET);
+    
+        // Trimiterea comenzii UCI cu parametrul depth
+        const goCommand = `go depth ${depthSET}`;
+        if (vs.queryConfigKey(namespace + '_externalenginegocommand')) {
+          externalEngineWorker.postMessage({ type: 'COMMAND', payload: goCommand });
+        }
+      }
+    });
+    
+    vs.registerConfigValue({
+      key: namespace + '_externalenginegocommand',
+      type: 'text',
+      display: 'External Engine Go Command: ',
+      description: 'The command to send to the external engine to start thinking',
+      value: 'go movetime 1000',
+      showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && vs.queryConfigKey(namespace + '_whichengine') === 'external' && !vs.queryConfigKey(namespace + '_externalengineautogocommand'),
+      callback: v => {
+        // Dacă comanda Go este definită de utilizator, o trimite
+        externalEngineWorker.postMessage({ type: 'COMMAND', payload: v });
+      }
+    });
+
+    
     vs.registerConfigValue({
       key: namespace + '_externalenginegocommand',
       type: 'text',
