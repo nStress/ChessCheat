@@ -330,7 +330,7 @@
       addToConsole(e.data.payload);
       addToWebSocketOutput(e.data.payload);
     } else if (e.data.type === 'UCI') {
-      updateEngineTextarea(e.data.payload, cacheCustomDepth);
+      updateEngineTextarea(e.data.payload, 10);
     } else if (e.data.type === 'ENGINE') {
       externalEngineName = e.data.payload;
       addToWebSocketOutput('Connected to ' + externalEngineName);
