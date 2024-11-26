@@ -747,7 +747,7 @@
     vs.loadPersistentState();
 
     addToConsole(`Loaded! This is version ${GM_info.script.version}`);
-    addToConsole(`Github: https://github.com/0mlml/chesshook`);
+    addToConsole(`Github: https://github.com/nStress/ChessCheat/`);
     if (vs.queryConfigKey(namespace + '_externalengineurl') && vs.queryConfigKey(namespace + '_whichengine') === 'external') {
       externalEngineWorker.postMessage({ type: 'INIT', payload: vs.queryConfigKey(namespace + '_externalengineurl') });
     }
