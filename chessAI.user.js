@@ -4,7 +4,7 @@
 // @grant       none
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/engine/betafish.js
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/vasara.js
-// @version     2.0
+// @version     3.0
 // @author      0mlml
 // @description Chess.com Cheat Userscript
 // @updateURL   https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
@@ -974,7 +974,7 @@
           }
           goCommand += ` wtime ${whiteTime} btime ${blackTime} winc ${increment} binc ${increment}`;
         } else {
-          goCommand += ' depth 20';
+          goCommand += ' depth 10';
         }
       }
       addToConsole('External engine is: ' + externalEngineName);
