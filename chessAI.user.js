@@ -4,7 +4,7 @@
 // @grant       none
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/engine/betafish.js
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/vasara.js
-// @version     3.4
+// @version     3.5
 // @author      0mlml
 // @description Chess.com Cheat Userscript
 // @updateURL   https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
@@ -13,6 +13,7 @@
 // ==/UserScript==
 
 (() => {
+  const depthSET = 5;
   const vs = vasara();
   const createExploitWindow = () => {
     const exploitWindow = vs.generateModalWindow({
@@ -288,13 +289,13 @@
       }
     }
 
-    const updateEngineTextarea = (infoLine, customDepth) => {
+    const updateEngineTextarea = (infoLine) => {
       if (engineOutputTextArea) {
         const lines = engineOutputTextArea.value.split('\n');
         const infoParts = infoLine.split(' ');
         
         // Setezi adâncimea personalizată
-        const depth = 10 || infoParts[infoParts.indexOf('depth') + 1];
+        const depth = depthSET || infoParts[infoParts.indexOf('depth') + 1];
         
         // Extragi și restul datelor așa cum era înainte
         const score = infoParts[infoParts.indexOf('score') + 1] + ' ' + infoParts[infoParts.indexOf('score') + 2];
@@ -610,7 +611,6 @@
 
         if (!vs.queryConfigKey(namespace + '_haswarnedaboutexternalengine') || vs.queryConfigKey(namespace + '_haswarnedaboutexternalengine') === 'false') {
           addToConsole('Please note that the external engine is not for the faint of heart. It requires tinkering and the user to host the chesshook intermediary server.');
-          alert('Please note that the external engine is not for the faint of heart. It requires tinkering and the user to host the chesshook intermediary server.')
           vs.setConfigValue(namespace + '_haswarnedaboutexternalengine', true);
         }
       }
@@ -977,9 +977,9 @@
               blackTime += increment;
             }
           }
-          goCommand += ` wtime ${whiteTime} btime ${blackTime} winc ${increment} binc ${increment} depth 10`;
+          goCommand += ` wtime ${whiteTime} btime ${blackTime} winc ${increment} binc ${increment} depth ${depthSET}`;
         } else {
-          goCommand += ' depth 10';
+          goCommand += `depth ${depthSET}`;
         }
       }
       addToConsole('External engine is: ' + externalEngineName);
