@@ -1,16 +1,16 @@
-// ==User Script==
-// @name        ChessAI
-// @include     https://www.chess.com/*
+// ==UserScript==
+// @name        Chesshook
+// @include    	https://www.chess.com/*
 // @grant       none
-// @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/engine/betafish.js
-// @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/vasara.js
-// @version     0.0
-// @description Chess AI project
-// @updateURL   https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
-// @downloadURL https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
+// @require     https://raw.githubusercontent.com/0mlml/chesshook/master/betafish.js
+// @require     https://raw.githubusercontent.com/0mlml/vasara/main/vasara.js
+// @version     2.0
+// @author      0mlml
+// @description Chess.com Cheat Userscript
+// @updateURL   https://raw.githubusercontent.com/0mlml/chesshook/master/chesshook.user.js
+// @downloadURL https://raw.githubusercontent.com/0mlml/chesshook/master/chesshook.user.js
 // @run-at      document-start
-// ==/User Script==
-
+// ==/UserScript==
 
 (() => {
   const vs = vasara();
