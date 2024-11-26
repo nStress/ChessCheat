@@ -6,6 +6,7 @@
 // @require     https://raw.githubusercontent.com/nStress/chessAI/main/vasara.js
 // @version     0.0
 // @description Chess AI project
+// @author nStress
 // @updateURL   https://raw.githubusercontent.com/nStress/chessAI/main/chessAI.user.js
 // @downloadURL https://raw.githubusercontent.com/nStress/chessAI/main/chessAI.user.js
 // @run-at      document-start
