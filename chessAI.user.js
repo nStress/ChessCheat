@@ -4,7 +4,7 @@
 // @grant       none
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/engine/betafish.js
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/vasara.js
-// @version     3.5
+// @version     3.1
 // @author      0mlml
 // @description Chess.com Cheat Userscript
 // @updateURL   https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
@@ -13,8 +13,8 @@
 // ==/UserScript==
 
 (() => {
-  var depthSET = 5;
   const vs = vasara();
+  const depthSettings = 7
   const createExploitWindow = () => {
     const exploitWindow = vs.generateModalWindow({
       title: 'Exploits',
@@ -295,7 +295,7 @@
         const infoParts = infoLine.split(' ');
         
         // Setezi adâncimea personalizată
-        const depth = depthSET || infoParts[infoParts.indexOf('depth') + 1];
+        const depth = depthSettings || infoParts[infoParts.indexOf('depth') + 1];
         
         // Extragi și restul datelor așa cum era înainte
         const score = infoParts[infoParts.indexOf('score') + 1] + ' ' + infoParts[infoParts.indexOf('score') + 2];
@@ -611,6 +611,7 @@
 
         if (!vs.queryConfigKey(namespace + '_haswarnedaboutexternalengine') || vs.queryConfigKey(namespace + '_haswarnedaboutexternalengine') === 'false') {
           addToConsole('Please note that the external engine is not for the faint of heart. It requires tinkering and the user to host the chesshook intermediary server.');
+          alert('Please note that the external engine is not for the faint of heart. It requires tinkering and the user to host the chesshook intermediary server.')
           vs.setConfigValue(namespace + '_haswarnedaboutexternalengine', true);
         }
       }
@@ -650,40 +651,6 @@
       showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && vs.queryConfigKey(namespace + '_whichengine') === 'external'
     });
 
-    vs.registerConfigValue({
-      key: namespace + '_depth',
-      type: 'number',
-      display: 'Depth: ',
-      description: 'Set the depth for the engine',
-      value: 5,  // Valoarea implicită
-      showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && vs.queryConfigKey(namespace + '_whichengine') === 'external',
-      callback: v => {
-        // Actualizează valoarea depthSET
-        depthSET = v;
-        console.log('Depth set to:', depthSET);
-    
-        // Trimiterea comenzii UCI cu parametrul depth
-        const goCommand = `go depth ${depthSET}`;
-        if (vs.queryConfigKey(namespace + '_externalenginegocommand')) {
-          externalEngineWorker.postMessage({ type: 'COMMAND', payload: goCommand });
-        }
-      }
-    });
-    
-    vs.registerConfigValue({
-      key: namespace + '_externalenginegocommand',
-      type: 'text',
-      display: 'External Engine Go Command: ',
-      description: 'The command to send to the external engine to start thinking',
-      value: 'go movetime 1000',
-      showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && vs.queryConfigKey(namespace + '_whichengine') === 'external' && !vs.queryConfigKey(namespace + '_externalengineautogocommand'),
-      callback: v => {
-        // Dacă comanda Go este definită de utilizator, o trimite
-        externalEngineWorker.postMessage({ type: 'COMMAND', payload: v });
-      }
-    });
-
-    
     vs.registerConfigValue({
       key: namespace + '_externalenginegocommand',
       type: 'text',
@@ -1011,9 +978,9 @@
               blackTime += increment;
             }
           }
-          goCommand += ` wtime ${whiteTime} btime ${blackTime} winc ${increment} binc ${increment} depth ${depthSET}`;
+          goCommand += ` wtime ${whiteTime} btime ${blackTime} winc ${increment} binc ${increment} depth ${depthSettings}`;
         } else {
-          goCommand += `depth ${depthSET}`;
+          goCommand += ` depth ${depthSettings}`;
         }
       }
       addToConsole('External engine is: ' + externalEngineName);
