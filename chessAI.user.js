@@ -14,7 +14,7 @@
 
 (() => {
   const vs = vasara();
-  const depthSettings = 7
+  const depthSettings = 10
   const createExploitWindow = () => {
     const exploitWindow = vs.generateModalWindow({
       title: 'Exploits',
