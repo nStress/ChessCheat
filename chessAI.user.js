@@ -4,8 +4,8 @@
 // @grant       none
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/engine/betafish.js
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/vasara.js
-// @version     3.123
-// @author      0mlml
+// @version     5.1
+// @author      nStress
 // @description Chess.com Cheat Userscript
 // @updateURL   https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
 // @downloadURL https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
