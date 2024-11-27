@@ -4,7 +4,7 @@
 // @grant       none
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/engine/betafish.js
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/vasara.js
-// @version     5.1
+// @version     5.5
 // @author      nStress
 // @description Chess.com Cheat Userscript
 // @updateURL   https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
@@ -14,7 +14,7 @@
 
 (() => {
   const vs = vasara();
-  const depthSettings = 10
+  const depthSettings = 13
   const createExploitWindow = () => {
     const exploitWindow = vs.generateModalWindow({
       title: 'Exploits',
