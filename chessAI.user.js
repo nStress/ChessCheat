@@ -5,7 +5,7 @@
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/engine/betafish.js
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/vasara.js
 // @version     3.9
-// @author      0mlml
+// @author      nStress
 // @description Chess.com Cheat Userscript
 // @updateURL   https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
 // @downloadURL https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
@@ -14,7 +14,7 @@
 
 (() => {
   const vs = vasara();
-  const depthSettings = 10
+  const depthSettings = 8
   const createExploitWindow = () => {
     const exploitWindow = vs.generateModalWindow({
       title: 'Exploits',
@@ -122,7 +122,7 @@
     addConsoleLineElement(text);
   }
 
-  const namespace = 'chesshook';
+  const namespace = 'chessAI';
 
   window[namespace] = {};
 
