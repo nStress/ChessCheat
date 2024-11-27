@@ -577,7 +577,7 @@
       type: 'dropdown',
       display: 'Joci cu ',
       description: 'Pentru care piese sa se calculeze mutarile',
-      value: 'both',
+      value: 'Ambele',
       options: ['Ambele', 'Alb', 'Negru', 'Auto'],
       showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && !vs.queryConfigKey(namespace + '_puzzlemode')
     });
@@ -917,14 +917,14 @@
     const board = document.querySelector('wc-chess-board');
     const fen = board.game.getFEN();
 
-    if (vs.queryConfigKey(namespace + '_playingas') !== 'both') {
-      if ((vs.queryConfigKey(namespace + '_playingas') === 'white' && fen.split(' ')[1] === 'b') ||
-        (vs.queryConfigKey(namespace + '_playingas') === 'black' && fen.split(' ')[1] === 'w')) {
+    if (vs.queryConfigKey(namespace + '_playingas') !== 'Ambele') {
+      if ((vs.queryConfigKey(namespace + '_playingas') === 'Alb' && fen.split(' ')[1] === 'b') ||
+        (vs.queryConfigKey(namespace + '_playingas') === 'Negru' && fen.split(' ')[1] === 'w')) {
         return false;
       }
     }
 
-    if (vs.queryConfigKey(namespace + '_playingas') === 'auto') {
+    if (vs.queryConfigKey(namespace + '_playingas') === 'Auto') {
       const playingAs = board.game.getPlayingAs() === 1 ? 'w' : board.game.getPlayingAs() === 2 ? 'b' : null;
       return playingAs === null || fen.split(' ')[1] === playingAs;
     }
