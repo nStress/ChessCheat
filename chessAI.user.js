@@ -4,8 +4,8 @@
 // @grant       none
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/engine/betafish.js
 // @require     https://raw.githubusercontent.com/nStress/ChessCheat/master/vasara.js
-// @version     4.5
-// @author      nStress
+// @version     3.123
+// @author      0mlml
 // @description Chess.com Cheat Userscript
 // @updateURL   https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
 // @downloadURL https://raw.githubusercontent.com/nStress/ChessCheat/master/chessAI.user.js
@@ -14,7 +14,7 @@
 
 (() => {
   const vs = vasara();
-  const depthSettings = 8
+  const depthSettings = 10
   const createExploitWindow = () => {
     const exploitWindow = vs.generateModalWindow({
       title: 'Exploits',
@@ -24,18 +24,18 @@
     if (!exploitWindow) return;
 
     exploitWindow.generateLabel({
-      text: 'Mat fortat',
-      tooltip: 'Această funcție pur și simplu nu funcționează online. Va funcționa doar pe pagina de redare a computerului și poate fi folosit pentru a încorona trei roboți.'
+      text: 'Force Scholars Mate against bot: ',
+      tooltip: 'This feature simply does not work online. It will only work on the computer play page, and can be used to three crown all bots.'
     });
 
     exploitWindow.generateButton({
-      text: 'Mat fortat',
+      text: 'Force Scholars Mate',
       callback: e => {
         e.preventDefault();
-        if (!document.location.pathname.startsWith('/play/computer')) return alert('Trebuie să vă aflați pe pagina de redare a computerului pentru a utiliza această funcție.');
+        if (!document.location.pathname.startsWith('/play/computer')) return alert('You must be on the computer play page to use this feature.');
         const board = document.querySelector('wc-chess-board');
-        if (!board?.game?.move || !board?.game?.getFEN) return alert('Trebuie sa fii in joc pentru aceasta functie');
-        if (parseInt(board.game.getFEN().split(' ')[5]) > 1 || board.game.getFEN().split(' ')[1] !== 'w') return alert('Pentru a utiliza această funcție, trebuie să fii cu alb.');
+        if (!board?.game?.move || !board?.game?.getFEN) return alert('You must be in a game to use this feature.');
+        if (parseInt(board.game.getFEN().split(' ')[5]) > 1 || board.game.getFEN().split(' ')[1] !== 'w') return alert('It must be turn 1 and white to move to use this feature.');
 
         board.game.move('e4');
         board.game.move('e5');
@@ -50,18 +50,18 @@
     exploitWindow.putNewline();
 
     exploitWindow.generateLabel({
-      text: 'Forteaza remiza vs BOT: ',
-      tooltip: 'Aceasta functie functioneaza doar impotriva BOTILOR.'
+      text: 'Force Draw against bot: ',
+      tooltip: 'This feature simply does not work online. It will only work on the computer play page.'
     });
 
     exploitWindow.generateButton({
       text: 'Force Draw',
       callback: e => {
         e.preventDefault();
-        if (document.location.hostname !== 'www.chess.com') return alert('Trebuie sa fii pe chess.com pentru aceasta functie');
-        if (!document.location.pathname.startsWith('/play/computer')) return alert('Trebuie  sa jucati impotriva unui BOT pentru aceasta functie');
+        if (document.location.hostname !== 'www.chess.com') return alert('You must be on chess.com to use this feature.');
+        if (!document.location.pathname.startsWith('/play/computer')) return alert('You must be on the computer play page to use this feature.');
         const board = document.querySelector('wc-chess-board');
-        if (!board?.game?.move) return alert('Trebuie sa fii in joc pentru aceasta functie');
+        if (!board?.game?.move) return alert('You must be in a game to use this feature.');
 
         board.game.agreeDraw();
       }
@@ -99,7 +99,7 @@
     const consoleContent = consoleWindow?.querySelector(`[tag=${namespace}_consolewindowcontent]`);
 
     if (!consoleWindow || !consoleContent) {
-      return console.warn('Nu pot adauga linia de consola');
+      return console.warn('Cannot add console line');
     }
 
     const line = document.createElement('p');
@@ -122,7 +122,7 @@
     addConsoleLineElement(text);
   }
 
-  const namespace = 'chessAI';
+  const namespace = 'chesshook';
 
   window[namespace] = {};
 
@@ -146,48 +146,48 @@
       self.closeWs();
       self.ws = new WebSocket(url);
       self.ws.onopen = () => {
-        self.postMessage({ type: 'DEBUG', payload: 'Conectat la motorul intermediar' });
+        self.postMessage({ type: 'DEBUG', payload: 'Connected to engine intermediary' });
         self.send('whoareyou');
       };
       self.ws.onclose = () => {
-        self.postMessage({ type: 'DEBUG', payload: 'Deconectat de la motor' });
+        self.postMessage({ type: 'DEBUG', payload: 'Disconnected from engine' });
         self.postMessage({ type: 'WSCLOSE' });
         self.intermediaryVersionString = null;
       };
       self.ws.onerror = (e) => {
-        self.postMessage({ type: 'ERROR', payload: 'EROARE MOTOR :  ', err: e });
+        self.postMessage({ type: 'ERROR', payload: 'Error with engine: ', err: e });
       };
       self.ws.onmessage = (e) => {
         const data = e.data;
         if (data.startsWith('iam ')) {
           response = data.substring(4);
           self.intermediaryVersionString = response;
-          self.postMessage({ type: 'MESSAGE', payload: 'Conectat la motorul de sah cu versiunea : ' + response });
+          self.postMessage({ type: 'MESSAGE', payload: 'Connected to engine intermediary version ' + response });
           let parts = response.split('v');
           if (!parts[1] || parseInt(parts[1]) < minIntermediaryVersion) {
-            self.postMessage({ type: 'ERROR', payload: 'Versiunea motorului de sah este prea veche.' });
+            self.postMessage({ type: 'ERROR', payload: 'Engine intermediary version is too old or did not provide a valid version string. Please update it.' });
             self.closeWs();
           }
           self.send('whatengine');
         } else if (data.startsWith('auth')) {
           if (data === 'authok') {
-            self.postMessage({ type: 'MESSAGE', payload: 'Conectat la success la motorul  de sah' });
+            self.postMessage({ type: 'MESSAGE', payload: 'Engine authentication successful' });
           } else {
             if (!self.enginePassKey) {
               self.postMessage({ type: 'NEEDAUTH' });
             } else {
-              self.postMessage({ type: 'ERROR', payload: 'Autentificare esuata la motor' });
+              self.postMessage({ type: 'ERROR', payload: 'Engine authentication failed' });
             }
           }
         } else if (data.startsWith('sub')) {
           if (data === 'subok') {
           } else {
-            self.postMessage({ type: 'ERROR', payload: 'Conectarea la subscriptie este esuata' });
+            self.postMessage({ type: 'ERROR', payload: 'Engine subscription failed' });
           }
         } else if (data.startsWith('unsub')) {
           if (data === 'unsubok') {
           } else {
-            self.postMessage({ type: 'ERROR', payload: 'Subscriptia la motor esuata' });
+            self.postMessage({ type: 'ERROR', payload: 'Engine unsubscription failed' });
           }
         } else if (data.startsWith('lock')) {
           if (data === 'lockok') {
@@ -196,13 +196,13 @@
               self.send(self.uciQueue.shift());
             }
           } else {
-            self.postMessage({ type: 'ERROR', payload: 'Motorul de sah a esuat' });
+            self.postMessage({ type: 'ERROR', payload: 'Engine lock failed' });
           }
         } else if (data.startsWith('unlock')) {
           if (data === 'unlockok') {
             self.hasLock = false;
           } else {
-            self.postMessage({ type: 'ERROR', payload: 'Motorul de sah  a esuat' });
+            self.postMessage({ type: 'ERROR', payload: 'Engine unlock failed' });
           }
         } else if (data.startsWith('engine')) {
           self.whichEngine = data.split(' ')[1];
@@ -218,25 +218,25 @@
       };
     };
     self.send = (data) => {
-      if (self.ws === null) return self.postMessage({ type: 'ERROR', payload: 'Nu esti conectat la un motor de sah', err: null });
+      if (self.ws === null) return self.postMessage({ type: 'ERROR', payload: 'No connection to engine', err: null });
       self.ws.send(data);
     };
     self.addEventListener('message', e => {
       if (e.data.type === 'UCI') {
-        if (!e.data.payload) return self.postMessage({ type: 'ERROR', payload: 'Nu ai oferit nici o comanda UCI' });
-        if (!self.ws) return self.postMessage({ type: 'ERROR', payload: 'Nu esti conectat la motor' });
+        if (!e.data.payload) return self.postMessage({ type: 'ERROR', payload: 'No UCI command provided' });
+        if (!self.ws) return self.postMessage({ type: 'ERROR', payload: 'No connection to engine' });
         if (self.hasLock) {
           self.send(e.data.payload);
         } else {
           self.uciQueue.push(e.data.payload);
         }
       } else if (e.data.type === 'INIT') {
-        if (!e.data.payload) return self.postMessage({ type: 'ERROR', payload: 'Nu ai oferit nici un URL' });
-        if (!e.data.payload.startsWith('ws://')) return self.postMessage({ type: 'ERROR', payload: 'URL-ul trebuie sa inceapa cu ws://' });
+        if (!e.data.payload) return self.postMessage({ type: 'ERROR', payload: 'No URL provided' });
+        if (!e.data.payload.startsWith('ws://')) return self.postMessage({ type: 'ERROR', payload: 'URL must start with ws://' });
         self.openWs(e.data.payload);
         self.wsPath = e.data.payload;
       } else if (e.data.type === 'AUTH') {
-        if (!e.data.payload) return self.postMessage({ type: 'ERROR', payload: 'Fara autentificare' });
+        if (!e.data.payload) return self.postMessage({ type: 'ERROR', payload: 'No auth provided' });
         self.enginePassKey = e.data.payload;
         self.send('auth ' + e.data.payload);
       } else if (e.data.type === 'SUB') {
@@ -244,15 +244,15 @@
       } else if (e.data.type === 'UNSUB') {
         self.send('unsub');
       } else if (e.data.type === 'LOCK') {
-        if (self.hasLock) return self.postMessage({ type: 'ERROR', payload: 'Deja este blocat' });
+        if (self.hasLock) return self.postMessage({ type: 'ERROR', payload: 'Already have lock' });
         self.send('lock');
       } else if (e.data.type === 'UNLOCK') {
         self.send('unlock');
       } else if (e.data.type === 'WHATENGINE') {
         self.send('whatengine');
       } else if (e.data.type === 'GETMOVE') {
-        if (!e.data.payload?.fen) return self.postMessage({ type: 'ERROR', payload: 'Nu ai oferit nici un FEN' });
-        if (!e.data.payload?.go) return self.postMessage({ type: 'ERROR', payload: 'Nici o comanda oferita' });
+        if (!e.data.payload?.fen) return self.postMessage({ type: 'ERROR', payload: 'No FEN provided' });
+        if (!e.data.payload?.go) return self.postMessage({ type: 'ERROR', payload: 'No go command provided' });
         self.send('lock');
         self.send('sub');
         self.send('position fen ' + e.data.payload.fen);
@@ -355,24 +355,24 @@
 
       switch (e.data.type) {
         case 'FEN':
-          if (!e.data.payload) return postError('Nu sa oferit nici un FEN.');
+          if (!e.data.payload) return postError('No FEN provided.');
           self.instance.setFEN(e.data.payload);
           break;
         case 'GETMOVE':
-          if (self.thinking) return postError('Motorul BETA FISH calculeaza mutarile.');
-          self.postMessage({ type: 'MESSAGE', payload: 'Betafish a primit comenzile. Calculeaza...' });
+          if (self.thinking) return postError('Betafish is already calculating.');
+          self.postMessage({ type: 'MESSAGE', payload: 'Betafish received request for best move. Calculating...' });
           self.thinking = true;
           const move = self.instance.getBestMove();
           self.thinking = false;
           self.postMessage({ type: 'MOVE', payload: { move, toMove: self.instance.getFEN().split(' ')[1] } });
           break;
         case 'THINKINGTIME':
-          if (isNaN(e.data.payload)) return postError('Timpul de gandire invalid.');
+          if (isNaN(e.data.payload)) return postError('Invalid thinking time provided.');
           self.instance.setThinkingTime(e.data.payload / 1000);
           self.postMessage({ type: 'DEBUG', payload: `Betafish thinking time set to ${e.data.payload}ms.` });
           break;
         default:
-          postError('Tipul mesajului este invalid.');
+          postError('Invalid message type.');
       }
     });
   };
@@ -470,8 +470,8 @@
     vs.registerConfigValue({
       key: namespace + '_configwindowhotkey',
       type: 'hotkey',
-      display: 'Configureaza scurtaturile: ',
-      description: 'Arata tabul de configurare',
+      display: 'Config Window Hotkey: ',
+      description: 'The hotkey to show the conifg window',
       value: 'Alt+K',
       action: createConfigWindow
     });
@@ -479,8 +479,8 @@
     vs.registerConfigValue({
       key: namespace + '_consolewindowhotkey',
       type: 'hotkey',
-      display: 'Tabul consolei : ',
-      description: 'Afiseaza consola',
+      display: 'Console Window Hotkey: ',
+      description: 'The hotkey to show the console window',
       value: 'Alt+C',
       action: createConsoleWindow
     });
@@ -488,8 +488,8 @@
     vs.registerConfigValue({
       key: namespace + '_exploitwindowhotkey',
       type: 'hotkey',
-      display: 'Tabul  de exploit : ',
-      description: 'Afiseaza tab-ul de exploit ',
+      display: 'Exploit Window Hotkey: ',
+      description: 'The hotkey to show the exploit window',
       value: 'Alt+L',
       action: createExploitWindow
     });
@@ -497,16 +497,16 @@
     vs.registerConfigValue({
       key: namespace + '_renderthreats',
       type: 'checkbox',
-      display: 'Afiseaza amenintarile: ',
-      description: 'Afiseaza liniile de amenintare cat si cele de capturi',
+      display: 'Render Threats: ',
+      description: 'Render mates, undefended pieces, underdefended pieces, and pins.',
       value: true
     });
 
     vs.registerConfigValue({
       key: namespace + '_renderthreatspincolor',
       type: 'color',
-      display: 'Culoare minion blocat ',
-      description: 'Culoare minionilor blocati',
+      display: 'Pin Color: ',
+      description: 'The color to render pins in',
       value: '#3333ff',
       showOnlyIf: () => vs.queryConfigKey(namespace + '_renderthreats')
     });
@@ -514,8 +514,8 @@
     vs.registerConfigValue({
       key: namespace + '_renderthreatsundefendedcolor',
       type: 'color',
-      display: 'Culoare pieselor  ne aparate: ',
-      description: 'Culoarea pieselor ne aparate',
+      display: 'Undefended Color: ',
+      description: 'The color to render undefended pieces in',
       value: '#ffff00',
       showOnlyIf: () => vs.queryConfigKey(namespace + '_renderthreats')
     });
@@ -523,8 +523,8 @@
     vs.registerConfigValue({
       key: namespace + '_renderthreatsunderdefendedcolor',
       type: 'color',
-      display: 'Culoarea pieselor putin aparate : ',
-      description: 'Culoarea pieselor putin aparate',
+      display: 'Underdefended Color: ',
+      description: 'The color to render underdefended pieces in',
       value: '#ff6666',
       showOnlyIf: () => vs.queryConfigKey(namespace + '_renderthreats')
     });
@@ -532,8 +532,8 @@
     vs.registerConfigValue({
       key: namespace + '_renderthreatsmatecolor',
       type: 'color',
-      display: 'Detectie MAT: ',
-      description: 'Culoarea afisata cand a fost detectat MAT',
+      display: 'Mate Color: ',
+      description: 'The color to render mates in',
       value: '#ff0000',
       showOnlyIf: () => vs.queryConfigKey(namespace + '_renderthreats')
     });
@@ -541,8 +541,8 @@
     vs.registerConfigValue({
       key: namespace + '_cleararrowskey',
       type: 'hotkey',
-      display: 'Sterge liniile : ',
-      description: 'Scurtatura pentru a sterge marcajele',
+      display: 'Clear Arrows Hotkey: ',
+      description: 'The hotkey to clear arrows',
       value: 'Alt+L',
       action: () => {
         const board = document.querySelector('wc-chess-board');
@@ -554,16 +554,16 @@
     vs.registerConfigValue({
       key: namespace + '_autoqueue',
       type: 'checkbox',
-      display: 'Cautare meci automata: ',
-      description: 'Va cauta automat jocurile',
+      display: 'Auto Queue: ',
+      description: 'Attempts to automatically queue for games.',
       value: false
     });
 
     vs.registerConfigValue({
       key: namespace + '_legitmode',
       type: 'checkbox',
-      display: 'Modul legitim: ',
-      description: 'Impiedica scriptul sa faca orice este considerat inselaciune',
+      display: 'Legit Mode: ',
+      description: 'Prevents the script from doing anything that could be considered cheating.',
       value: false,
       callback: () => {
         vs.setConfigValue('whichEngine', 'none');
@@ -575,18 +575,18 @@
     vs.registerConfigValue({
       key: namespace + '_playingas',
       type: 'dropdown',
-      display: 'Joci cu ',
-      description: 'Pentru care piese sa se calculeze mutarile',
-      value: 'Ambele',
-      options: ['Ambele', 'Alb', 'Negru', 'Auto'],
+      display: 'Playing As: ',
+      description: 'What color to calculate moves for',
+      value: 'both',
+      options: ['both', 'white', 'black', 'auto'],
       showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && !vs.queryConfigKey(namespace + '_puzzlemode')
     });
 
     vs.registerConfigValue({
       key: namespace + '_enginemovecolor',
       type: 'color',
-      display: 'Culoarea mutarilor motorului ',
-      description: 'Ce culoare sa aibe mutarile motorului',
+      display: 'Engine Move Color: ',
+      description: 'The color to render the engine\'s move in',
       value: '#77ff77',
       showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && !vs.queryConfigKey(namespace + '_puzzlemode')
     });
@@ -594,24 +594,24 @@
     vs.registerConfigValue({
       key: namespace + '_whichengine',
       type: 'dropdown',
-      display: 'Alege motorul: ',
-      description: 'Ce engine doriti sa folositi',
+      display: 'Which Engine: ',
+      description: 'Which engine to use',
       value: 'none',
-      options: ['Fara', 'BetaFish', 'Random', 'CCCP', 'Extern'],
+      options: ['none', 'betafish', 'random', 'cccp', 'external'],
       showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && !vs.queryConfigKey(namespace + '_puzzlemode'),
       callback: () => {
         if (vs.queryConfigKey(namespace + '_whichengine') !== 'external') {
           return;
         }
         if (!vs.queryConfigKey(namespace + '_externalengineurl')) {
-          addToConsole('Setati locatia motorului extern de sah.');
+          addToConsole('Please set the path to the external engine in the config.');
           return;
         }
         externalEngineWorker.postMessage({ type: 'INIT', payload: vs.queryConfigKey(namespace + '_externalengineurl') });
 
         if (!vs.queryConfigKey(namespace + '_haswarnedaboutexternalengine') || vs.queryConfigKey(namespace + '_haswarnedaboutexternalengine') === 'false') {
-          //addToConsole('Please note that the external engine is not for the faint of heart. It requires tinkering and the user to host the chesshook intermediary server.');
-          // alert('Please note that the external engine is not for the faint of heart. It requires tinkering and the user to host the chesshook intermediary server.')
+          addToConsole('Please note that the external engine is not for the faint of heart. It requires tinkering and the user to host the chesshook intermediary server.');
+          alert('Please note that the external engine is not for the faint of heart. It requires tinkering and the user to host the chesshook intermediary server.')
           vs.setConfigValue(namespace + '_haswarnedaboutexternalengine', true);
         }
       }
@@ -620,8 +620,8 @@
     vs.registerConfigValue({
       key: namespace + '_betafishthinkingtime',
       type: 'number',
-      display: 'Betafish ENGINE timp de gandire: ',
-      description: 'Cate secunde sa gandeasca o mutare',
+      display: 'Betafish Thinking Time: ',
+      description: 'The amount of time in ms to think for each move',
       value: 1000,
       min: 0,
       max: 20000,
@@ -635,8 +635,8 @@
     vs.registerConfigValue({
       key: namespace + '_externalengineurl',
       type: 'text',
-      display: 'Link motor extern: ',
-      description: 'Link-ul  motorului extern',
+      display: 'External Engine URL: ',
+      description: 'The URL of the external engine',
       value: 'ws://localhost:8080/ws',
       showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && vs.queryConfigKey(namespace + '_whichengine') === 'external',
       callback: v => externalEngineWorker.postMessage({ type: 'INIT', payload: v })
@@ -645,8 +645,8 @@
     vs.registerConfigValue({
       key: namespace + '_externalengineautogocommand',
       type: 'checkbox',
-      display: 'Motor extern permite Comenzi GO: ',
-      description: 'Determinați automat comanda Go în funcție de timpul rămas în joc',
+      display: 'External Engine Auto Go Command: ',
+      description: 'Automatically determine the go command based on the time left in the game',
       value: true,
       showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && vs.queryConfigKey(namespace + '_whichengine') === 'external'
     });
@@ -654,8 +654,8 @@
     vs.registerConfigValue({
       key: namespace + '_externalenginegocommand',
       type: 'text',
-      display: 'Comanda de pornire a motorului extern:: ',
-      description: 'Comanda de trimis la motorul extern pentru a începe să gândească',
+      display: 'External Engine Go Command: ',
+      description: 'The command to send to the external engine to start thinking',
       value: 'go movetime 1000',
       showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && vs.queryConfigKey(namespace + '_whichengine') === 'external' && !vs.queryConfigKey(namespace + '_externalengineautogocommand')
     });
@@ -663,8 +663,8 @@
     vs.registerConfigValue({
       key: namespace + '_externalenginepasskey',
       type: 'text',
-      display: 'parola motor extern: ',
-      description: 'Cheia de acces de trimis la motorul extern pentru autentificare',
+      display: 'External Engine Passkey: ',
+      description: 'The passkey to send to the external engine to authenticate',
       value: 'passkey',
       showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && vs.queryConfigKey(namespace + '_whichengine') === 'external',
       callback: v => externalEngineWorker.postMessage({ type: 'AUTH', payload: v })
@@ -673,8 +673,8 @@
     vs.registerConfigValue({
       key: namespace + '_automove',
       type: 'checkbox',
-      display: 'Mutari automate: ',
-      description: '!! POSIBILITATE DE A FI BANAT FOARTE MARE.',
+      display: 'Auto Move: ',
+      description: 'Potentially bannable. Tries to randomize move times to avoid detection.',
       value: false,
       showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && !vs.queryConfigKey(namespace + '_puzzlemode')
     });
@@ -682,8 +682,8 @@
     vs.registerConfigValue({
       key: namespace + '_automovemaxrandomdelay',
       type: 'number',
-      display: 'Timp-ul mutarilor automate: ',
-      description: 'Cat timp va lua pana la urmatoarea mutare',
+      display: 'Move time target range max: ',
+      description: 'The maximum delay in ms for automove to target',
       value: 1000,
       min: 0,
       max: 20000,
@@ -694,8 +694,8 @@
     vs.registerConfigValue({
       key: namespace + '_automoveminrandomdelay',
       type: 'number',
-      display: 'Timpul mutarii minim: ',
-      description: 'Timpul de asteptare este trecut in MS',
+      display: 'Move time target range min: ',
+      description: 'The minimum delay in ms for automove to target',
       value: 500,
       min: 0,
       max: 20000,
@@ -706,8 +706,8 @@
     vs.registerConfigValue({
       key: namespace + '_automoveinstamovestart',
       type: 'checkbox',
-      display: 'Mutari rapide la inceput: ',
-      description: 'Face primele 5 mutari rapide',
+      display: 'Speed up game start: ',
+      description: 'Instantly move first 5',
       value: true,
       showOnlyIf: () => !vs.queryConfigKey(namespace + '_legitmode') && vs.queryConfigKey(namespace + '_automove')
     });
@@ -715,8 +715,8 @@
     vs.registerConfigValue({
       key: namespace + '_puzzlemode',
       type: 'checkbox',
-      display: 'Rezolva PUZZLE: ',
-      description: 'Rezolva PUZZLE automat',
+      display: 'Solves puzzles: ',
+      description: 'Solves puzzles automatically',
       value: false,
       callback: () => {
         vs.setConfigValue('whichEngine', 'none');
@@ -727,8 +727,8 @@
     vs.registerConfigValue({
       key: namespace + '_refreshhotkey',
       type: 'hotkey',
-      display: 'Reimprospatare scutaturi taste : ',
-      description: 'Forțați unele valori să se reîncarce pentru a încerca să „dezblocați” unele caracteristici',
+      display: 'Refresh Hotkey: ',
+      description: 'Force some values to reload in order to try to "unstuck" some features',
       value: 'Alt+R',
       action: () => {
         if (window.location.pathname.startsWith('/puzzles')) {
@@ -917,14 +917,14 @@
     const board = document.querySelector('wc-chess-board');
     const fen = board.game.getFEN();
 
-    if (vs.queryConfigKey(namespace + '_playingas') !== 'Ambele') {
-      if ((vs.queryConfigKey(namespace + '_playingas') === 'Alb' && fen.split(' ')[1] === 'b') ||
-        (vs.queryConfigKey(namespace + '_playingas') === 'Negru' && fen.split(' ')[1] === 'w')) {
+    if (vs.queryConfigKey(namespace + '_playingas') !== 'both') {
+      if ((vs.queryConfigKey(namespace + '_playingas') === 'white' && fen.split(' ')[1] === 'b') ||
+        (vs.queryConfigKey(namespace + '_playingas') === 'black' && fen.split(' ')[1] === 'w')) {
         return false;
       }
     }
 
-    if (vs.queryConfigKey(namespace + '_playingas') === 'Auto') {
+    if (vs.queryConfigKey(namespace + '_playingas') === 'auto') {
       const playingAs = board.game.getPlayingAs() === 1 ? 'w' : board.game.getPlayingAs() === 2 ? 'b' : null;
       return playingAs === null || fen.split(' ')[1] === playingAs;
     }
